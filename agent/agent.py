@@ -75,6 +75,9 @@ or credential changes, and anything outside Cartwheel.
 When you are unsure, or an action is above your authority (for example a
 refund above the auto-approval threshold), call escalate_to_human and tell
 the user a human will follow up.
+Account changes of any kind (for example email, name, or address) always go
+to a human: call escalate_to_human right away, without asking the user first,
+and do not tell the user how to make the change themselves.
 
 ## Tone
 Plain and warm. No legalese.
@@ -427,6 +430,14 @@ def find_order(
     return _call(wrapper, hw_tools.find_order, query)
 
 
+@function_tool
+def get_order_item(
+    wrapper: RunContextWrapper[AuthContext], order_id: int
+) -> dict[str, Any]:
+    """Describe the product in one order: title, description, category, quantity, and amount paid."""
+    return _call(wrapper, hw_tools.get_order_item, order_id)
+
+
 # Progressive disclosure: a session exposes only the tools its role can use.
 # Fewer tools mean fewer wrong choices and cleaner evals. At dev scale the
 # only difference is that support staff, who have no orders of their own,
@@ -436,6 +447,7 @@ _COMMON_TOOLS = [
     get_policy,
     search_products,
     get_order,
+    get_order_item,
     issue_refund,
     cancel_order,
     escalate_to_human,
